@@ -33,6 +33,11 @@ private:
     double hat_ly_;  // controller left stick y
     double hat_lx_;  // controller left stick x
 
+    double left_wheel_vel_;
+    double right_wheel_vel_;
+
+    double l_dead_zone_y_;
+    double l_dead_zone_x_;
 };
 
 }
