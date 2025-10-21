@@ -2,6 +2,7 @@
 	<arg name="joy" default="/dev/input/js0"/>
 	<arg name="joy_deadzone" default="0.02"/>
 	<arg name="joy_topic" default="/input/joy_data" />
+	<arg name="controller_type" default="auto" description="Controller type: auto, ps4, ps5, or xbox"/>
 
 	<node name="joy_node" pkg="joy" exec="joy_node" respawn="true" output="screen">
 		<param name="dev" value="$(var joy)" />
@@ -12,5 +13,6 @@
 
 	<node name="joy_adapter" pkg="m2_joy" exec="joy_transform_data_node" respawn="true" output="screen">
 		<param name="joy_topic" value="$(var joy_topic)" />
+		<param name="controller_type" value="$(var controller_type)" />
 	</node>
 </launch>
