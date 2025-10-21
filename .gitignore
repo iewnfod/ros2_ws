@@ -7,3 +7,6 @@ log/
 .vscode/
 .cache/
 
+# CodeQL files
+_codeql_detected_source_root
+
