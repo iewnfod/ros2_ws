@@ -1,0 +1,31 @@
+# The active caster yaw-sin-trajectory action aims to command the chassis to
+# rotate a precise yaw displacement, by giving a sin-trajectory position command
+# to the driving motor of each wheel.
+#
+# The action finishes when all wheels have reached their position target
+# for a continuous amount of time, or after a timeout time.
+
+#############################
+# sin trajectory parameters #
+#############################
+float64 displacement      # [all real number, rad]
+float64 max_velocity      # [+ve, rad/s]
+float64 max_acceleration  # [+ve, rad/s^2]
+float64 max_deceleration  # [+ve, rad/s^2]
+
+#########################
+# completion conditions #
+#########################
+# consider the wheel to have reached its target if the absolute difference between the
+#   feedback yaw (calculated from feedback position) and target yaw is under this amount
+float64 target_threshold  # [+ve, rad]
+
+# finish the action forcefully if it isn't finished within this amount of time
+uint32 timeout_ms  # [ms]
+
+# finish the action when all wheels' positions have stayed within
+#   their target threshold for this amount of time continuously
+uint32 continuous_ms_within_threshold  # [ms]
+---
+bool success
+---

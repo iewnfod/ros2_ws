@@ -1,0 +1,42 @@
+name: Formatting
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+      - ci
+    paths:
+      - "**.h"
+      - "**.cpp"
+      - "**CMakeLists.txt"
+      - ".clang-tidy"
+      - ".github/workflows/ci-check.yaml"
+  push:
+    branches:
+      - master
+      - ci
+    paths:
+      - "**.h"
+      - "**.cpp"
+      - ".clang-format"
+      - "!third_party/**"
+      - ".github/workflows/formatting-check.yaml"
+
+jobs:
+  clang-format:
+    name: clang-format
+    runs-on: m2-pc-arc-runner-set
+    strategy:
+      matrix:
+        path:
+          - 'code'
+          - 'test'
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run source code style check
+        uses: m2robocon/formatting-check-action@v1
+        with:
+          clang-format-version: '18'
+          clang-format-check-path: ${{ matrix.path }}

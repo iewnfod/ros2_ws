@@ -1,0 +1,5 @@
+# Copyright (c) 2023 HKU Robocon Team
+
+@PACKAGE_INIT@
+
+include(@PACKAGE_EXPORT_PATH@)

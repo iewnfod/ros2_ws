@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+      - ci
+    paths:
+      - "**.h"
+      - "**.cpp"
+      - "**CMakeLists.txt"
+      - ".clang-tidy"
+      - ".github/workflows/ci-check.yaml"
+  push:
+    branches:
+      - master
+      - ci
+    paths:
+      - "**.h"
+      - "**.cpp"
+      - "**CMakeLists.txt"
+      - ".clang-tidy"
+      - ".github/workflows/ci-check.yaml"
+
+env:
+  package-name: m2_fsm_cpp
+  apt-depends: git libgtest-dev clang clang-tidy
+  tsan-suppressions: |
+    called_from_lib:liblog4cxx.so
+  lsan-suppressions:
+
+jobs:
+  linux:
+    name: Linux
+    runs-on: m2-pc-arc-runner-set
+    strategy:
+      matrix:
+        type: [normal, clangtidy, tsan, asan, ubsan]
+        include:
+          - type: clangtidy
+            extra-cmake-args: -DM2B_CLANG_TIDY_CHECK_CXX=ON -DM2B_CLANG_TIDY_CHECK_CXX_HEADER_FILTER=code/include/.*h$ -DM2B_CLANG_TIDY_WARNINGS_AS_ERRORS=ON
+          - type: tsan
+            extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_TSAN=ON
+          - type: asan
+            extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_ASAN=ON
+          - type: ubsan
+            extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_UBSAN=ON
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.package-name }}
+          submodules: 'recursive'
+
+      - name: Add SSH private key and clone dependencies
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.M2MACHINE_SSH_PRIVATE_KEY }}'
+          cd ${{ env.package-name }}
+          ./scripts/clone.sh
+
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ${{ env.apt-depends }}
+
+      - name: Configure and build dependencies
+        run: |
+          mkdir -p ${{ github.workspace }}/install
+          mkdir -p ${{ github.workspace }}/build
+          # trolly
+          mkdir -p ${{ github.workspace }}/build/trolly
+          pushd ${{ github.workspace }}/build/trolly
+          cmake ${{ github.workspace }}/trolly -DM2B_BUILD_TEST=ON ${{ matrix.extra-cmake-args }} -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install
+          make -j$(nproc)
+          make install
+          popd
+
+      - name: Configure
+        run: |
+          cd ${{ env.package-name }}
+          mkdir build
+          cmake -B build . -DM2B_BUILD_TEST=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install ${{ matrix.extra-cmake-args }}
+
+      - name: Build and Test
+        run: |
+          cd ${{ env.package-name }}/build
+          cat << EOF > /tmp/tsan_suppressions_file
+          ${{ env.tsan-suppressions }}
+          EOF
+          export TSAN_OPTIONS="suppressions=/tmp/tsan_suppressions_file"
+          cat << EOF > /tmp/lsan_suppressions_file
+          ${{ env.lsan-suppressions }}
+          EOF
+          export LSAN_OPTIONS="suppressions=/tmp/lsan_suppressions_file"
+          make -j$(nproc)
+          ctest --output-on-failure
+  ros:
+    name: ROS (${{ matrix.ROS_DISTRO }}, ${{ matrix.type }})
+    runs-on: m2-pc-arc-runner-set
+    strategy:
+      matrix:
+        type: [normal, clangtidy, tsan, asan, ubsan]
+        ROS_DISTRO: [jazzy]
+        include:
+           # use a pre-built ROS docker image to save time
+          - ROS_DISTRO: jazzy
+            DOCKER_IMAGE: m2robocon/dev-base:latest
+          - type: clangtidy
+            extra-cmake-args: -DM2B_CLANG_TIDY_CHECK_CXX=ON -DM2B_CLANG_TIDY_CHECK_CXX_HEADER_FILTER=code/include/.*h$ -DM2B_CLANG_TIDY_WARNINGS_AS_ERRORS=ON
+          - type: tsan
+            extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_TSAN=ON
+          - type: asan
+            extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_ASAN=ON
+          - type: ubsan
+            extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_UBSAN=ON
+    env:
+      CCACHE_DIR: "${{ github.workspace }}/.ccache"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.package-name }}
+          submodules: 'recursive'
+
+      - name: Add SSH private key and clone dependencies
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.M2MACHINE_SSH_PRIVATE_KEY }}'
+          cd ${{ env.package-name }}
+          ./scripts/clone.sh
+
+      - uses: actions/cache@v4
+        with: 
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{github.run_id}}
+          restore-keys: |
+            ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
+
+      - uses: 'm2robocon/industrial_ci@master'
+        env:
+          ROS_REPO: main
+          ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+          DOCKER_IMAGE: ${{ matrix.DOCKER_IMAGE }}
+          DOCKER_RUN_OPTS: -e TSAN_OPTIONS=suppressions=/tmp/tsan_suppressions_file -e LSAN_OPTIONS=suppressions=/tmp/lsan_suppressions_file
+          AFTER_INSTALL_TARGET_DEPENDENCIES: |
+            apt-get update
+            apt-get install -y ${{ env.apt-depends }}
+            cat << EOF > /tmp/tsan_suppressions_file
+            ${{ env.tsan-suppressions }}
+            EOF
+            cat << EOF > /tmp/lsan_suppressions_file
+            ${{ env.lsan-suppressions }}
+            EOF
+          TARGET_CMAKE_ARGS: -DM2B_BUILD_TEST=ON ${{ matrix.extra-cmake-args }}

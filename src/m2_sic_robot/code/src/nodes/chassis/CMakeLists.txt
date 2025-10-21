@@ -1,0 +1,2 @@
+m2_sic_robot_set_selectors(chassis-node)
+m2_sic_robot_build_current_ros2_dir(chassis_node)

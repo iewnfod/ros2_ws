@@ -1,0 +1,1 @@
+m2b_add_subdirectory(example)

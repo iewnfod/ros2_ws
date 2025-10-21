@@ -1,0 +1,17 @@
+{
+	"cmake.sourceDirectory": "/home/muyunxi/ros2_ws/src/m2_sic_robot",
+	"python.autoComplete.extraPaths": [
+		"/home/muyunxi/ros2_ws/install/m2_sic_robot/lib/python3.12/site-packages",
+		"/home/muyunxi/ros2_ws/install/m2_interfaces/lib/python3.12/site-packages",
+		"/opt/ros/jazzy/lib/python3.12/site-packages"
+	],
+	"python.analysis.extraPaths": [
+		"/home/muyunxi/ros2_ws/install/m2_sic_robot/lib/python3.12/site-packages",
+		"/home/muyunxi/ros2_ws/install/m2_interfaces/lib/python3.12/site-packages",
+		"/opt/ros/jazzy/lib/python3.12/site-packages"
+	],
+	"files.associations": {
+		"*.rmd": "markdown",
+		"functional": "cpp"
+	}
+}

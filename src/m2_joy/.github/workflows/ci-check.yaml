@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+      - ci
+    paths:
+      - "**.h"
+      - "**.cpp"
+      - "**CMakeLists.txt"
+      - ".clang-tidy"
+      - ".github/workflows/ci-check.yaml"
+  push:
+    branches:
+      - master
+      - ci
+    paths:
+      - "**.h"
+      - "**.cpp"
+      - "**CMakeLists.txt"
+      - ".clang-tidy"
+      - ".github/workflows/ci-check.yaml"
+
+env:
+  package-name: m2_joy
+  apt-depends: git libgtest-dev clang clang-tidy
+  tsan-suppressions: |
+      called_from_lib:liblog4cxx.so
+  lsan-suppressions:
+
+jobs:
+  ros:
+    name: ROS (${{ matrix.ROS_DISTRO }}, ${{ matrix.type }})
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        type: [normal, clangtidy]
+        # tsan, asan, ubsan]
+        ROS_DISTRO: [jazzy]
+        include:
+          # use a pre-built ROS docker image to save time
+          - ROS_DISTRO: jazzy
+            DOCKER_IMAGE: "osrf/ros:jazzy-desktop-full-noble"
+          - type: clangtidy
+            extra-cmake-args: -DM2B_CLANG_TIDY_CHECK=ON -DM2B_CLANG_TIDY_WARNINGS_AS_ERRORS=ON
+        #   - type: tsan
+        #     extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_TSAN=ON
+        #   - type: asan
+        #     extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_ASAN=ON
+        #   - type: ubsan
+        #     extra-cmake-args: -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DM2B_BUILD_UBSAN=ON
+    env:
+      CCACHE_DIR: "${{ github.workspace }}/.ccache"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.package-name }}
+          submodules: "recursive"
+
+      - name: Add SSH private key and clone dependencies
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.M2MACHINE_SSH_PRIVATE_KEY }}'
+          cd ${{ env.package-name }}
+          ./scripts/clone.sh
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{github.run_id}}
+          restore-keys: |
+            ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
+
+      - uses: "m2robocon/industrial_ci@master"
+        env:
+          ROS_REPO: main
+          ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+          DOCKER_IMAGE: ${{ matrix.DOCKER_IMAGE }}
+          DOCKER_RUN_OPTS: -e TSAN_OPTIONS=suppressions=/tmp/tsan_suppressions_file -e LSAN_OPTIONS=suppressions=/tmp/lsan_suppressions_file
+          AFTER_INSTALL_TARGET_DEPENDENCIES: |
+            apt-get update
+            apt-get install -y ${{ env.apt-depends }}
+            cat << EOF > /tmp/tsan_suppressions_file
+            ${{ env.tsan-suppressions }}
+            EOF
+            cat << EOF > /tmp/lsan_suppressions_file
+            ${{ env.lsan-suppressions }}
+            EOF
+          TARGET_CMAKE_ARGS: -DM2B_BUILD_TEST=ON ${{ matrix.extra-cmake-args }}

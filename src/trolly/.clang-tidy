@@ -1,0 +1,55 @@
+Checks: >
+    *,
+    -cppcoreguidelines-non-private-member-variables-in-classes,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -hicpp-signed-bitwise,
+    -modernize-use-trailing-return-type,
+    -hicpp-no-array-decay,
+    -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+    -fuchsia-default-arguments-calls,
+    -*vararg,
+    -*avoid-c-arrays,
+    -*pro-type-union-access,
+    -fuchsia-default-arguments-declarations,
+    -cppcoreguidelines-pro-bounds-constant-array-index,
+    -hicpp-uppercase-literal-suffix,
+    -hicpp-deprecated-headers,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+    -cert-dcl50-cpp,
+    -google-runtime-references,
+    -llvmlibc-restrict-system-libc-headers,
+    -llvmlibc-implementation-in-namespace,
+    -llvmlibc-callee-namespace,
+    -bugprone-easily-swappable-parameters,
+    -altera-unroll-loops,
+    -altera-id-dependent-backward-branch,
+    -altera-struct-pack-align,
+    -llvm-header-guard,
+    -llvm-include-order,
+    -fuchsia-*,
+    -android-*,
+    -boost-*,
+    -misc-definitions-in-headers,
+    -misc-non-private-member-variables-in-classes,
+    -misc-const-correctness,
+    -readability-redundant-access-specifiers,
+    -readability-identifier-length,
+    -readability-magic-numbers,
+    -cppcoreguidelines-macro-usage,
+    -bugprone-macro-parentheses,
+    -modernize-pass-by-value,
+    -cppcoreguidelines-owning-memory,
+    -bugprone-exception-escape,
+    -cert-err58-cpp,
+    -google-readability-avoid-underscore-in-googletest-name,
+    -misc-include-cleaner,
+    -llvmlibc-inline-function-decl,
+CheckOptions:
+  - key: readability-inconsistent-declaration-parameter-name.Strict
+    value: '1'
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: '1;2;3;4;5;6;7;8;15;16;24;32;255'
+  - key: readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value: '1'
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: '1'

@@ -1,0 +1,27 @@
+# The active caster align action steers each wheel to the
+# equivalent twist command steering configuration.
+#
+# The action finishes when all wheels have reached their position target
+# for a continuous amount of time, or after a timeout time.
+
+# steer the wheels to achieve this twist
+geometry_msgs/Twist cmd
+
+# consider the wheel to have reached its target if the absolute difference between
+#   the steering feedback position and target position is under this amount
+float64 target_threshold  # [+ve, rad]
+
+# finish the action forcefully if it isn't finished within this amount of time
+uint32 timeout_ms  # [ms]
+
+uint8 CHASSIS_BRAKE_MODE_VELOCITY=0
+uint8 CHASSIS_BRAKE_MODE_POSITION=1
+
+uint8 chassis_brake_mode
+
+# finish the action when all wheels' positions have stayed within
+#   their target threshold for this amount of time continuously
+uint32 continuous_ms_within_threshold  # [ms]
+---
+bool success
+---

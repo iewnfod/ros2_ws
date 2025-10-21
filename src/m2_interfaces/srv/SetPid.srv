@@ -1,0 +1,6 @@
+float32 kp
+float32 ki
+float32 kd
+---
+bool success   # indicate successful run of the service
+string message # informational, e.g. for error messages

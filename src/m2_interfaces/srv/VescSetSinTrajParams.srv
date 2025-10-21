@@ -1,0 +1,9 @@
+# Maximum velocity
+float32 max_vel
+# Maximum acceleration
+float32 max_acc
+# Maximum deceleration
+float32 max_dec
+---
+bool success   # indicate successful run of the service
+string message # informational, e.g. for error messages
