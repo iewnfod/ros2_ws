@@ -29,6 +29,8 @@ chassis_node::chassis_node()
     left_wheel_vel_ = 0.0;
     right_wheel_vel_ = 0.0;
 
+    stop_flag = false;
+
     timer_ = this->create_wall_timer(
         10ms, [this](){this->tick();}
     );
@@ -54,10 +56,16 @@ bool chassis_node::init()
 
 void chassis_node::tick()
 {
-    TROLLY_INFO("[chassis_node] Controller - lx: %.2f, ly: %.2f", hat_lx_, hat_ly_);
-
-    left_wheel_vel_ = hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_;
-    right_wheel_vel_ = hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_;
+    if (stop_flag)
+    {
+        TROLLY_INFO("[chassis_node] Stop flag is set. Stopping the motor.");
+        left_wheel_vel_ = 0.0;
+        right_wheel_vel_ = 0.0;
+    } else {
+        TROLLY_INFO("[chassis_node] Controller - lx: %.2f, ly: %.2f", hat_lx_, hat_ly_);
+        left_wheel_vel_ = hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_;
+        right_wheel_vel_ = hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_;
+    }
 
     std_msgs::msg::Float32 left_msg;
     std_msgs::msg::Float32 right_msg;
@@ -79,11 +87,15 @@ void chassis_node::on_controller_data_cb(const m2_interfaces::msg::JoyData& data
     if (std::abs(data.hat_lx) > l_dead_zone_x_)
     {
         hat_lx_ = data.hat_lx;
+    } else {
+        hat_lx_ = 0.0;
     }
 
     if (std::abs(data.hat_ly) > l_dead_zone_y_)
     {
         hat_ly_ = data.hat_ly;
+    } else {
+        hat_ly_ = 0.0;
     }
 }
 

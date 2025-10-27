@@ -38,6 +38,8 @@ private:
 
     double l_dead_zone_y_;
     double l_dead_zone_x_;
+
+    bool stop_flag;
 };
 
 }
