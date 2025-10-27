@@ -7,6 +7,7 @@
 #include "trolly/ros2/log/trolly_logger_ros2.h"
 
 #include <chrono>
+#include <cstdlib>
 #include <optional>
 
 using namespace std::chrono_literals;
@@ -21,6 +22,12 @@ chassis_node::chassis_node()
 
     hat_ly_ = 0.0;
     hat_lx_ = 0.0;
+
+    l_dead_zone_x_ = 0.2;
+    l_dead_zone_y_ = 0.2;
+
+    left_wheel_vel_ = 0.0;
+    right_wheel_vel_ = 0.0;
 
     timer_ = this->create_wall_timer(
         10ms, [this](){this->tick();}
@@ -47,27 +54,37 @@ bool chassis_node::init()
 
 void chassis_node::tick()
 {
-    TROLLY_INFO("[chassis_node] Tick - lx: %.2f, ly: %.2f", hat_lx_, hat_ly_);
-    TROLLY_INFO(
-        "[chassis_node] Publish - left_wheel: %.2f, right_wheel: %.2f",
-        hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_,
-        hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_
-    );
+    TROLLY_INFO("[chassis_node] Controller - lx: %.2f, ly: %.2f", hat_lx_, hat_ly_);
+
+    left_wheel_vel_ = hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_;
+    right_wheel_vel_ = hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_;
 
     std_msgs::msg::Float32 left_msg;
     std_msgs::msg::Float32 right_msg;
 
-    left_msg.data = hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_;
-    right_msg.data = hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_;
+    left_msg.data = left_wheel_vel_;
+    right_msg.data = right_wheel_vel_;
 
     left_wheel_pub_->publish(left_msg);
     right_wheel_pub_->publish(right_msg);
+
+    TROLLY_INFO(
+        "[chassis_node] Publish - left_wheel: %.2f/%.2f, right_wheel: %.2f/%.2f",
+        left_wheel_vel_, max_vel_, right_wheel_vel_, max_vel_
+    );
 }
 
 void chassis_node::on_controller_data_cb(const m2_interfaces::msg::JoyData& data)
 {
-    hat_lx_ = data.hat_lx;
-    hat_ly_ = data.hat_ly;
+    if (std::abs(data.hat_lx) > l_dead_zone_x_)
+    {
+        hat_lx_ = data.hat_lx;
+    }
+
+    if (std::abs(data.hat_ly) > l_dead_zone_y_)
+    {
+        hat_ly_ = data.hat_ly;
+    }
 }
 
 }  // namespace m2::sic_robot
