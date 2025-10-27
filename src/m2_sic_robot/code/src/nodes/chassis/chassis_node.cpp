@@ -63,8 +63,8 @@ void chassis_node::tick()
         right_wheel_vel_ = 0.0;
     } else {
         TROLLY_INFO("[chassis_node] Controller - lx: %.2f, ly: %.2f", hat_lx_, hat_ly_);
-        left_wheel_vel_ = hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_;
-        right_wheel_vel_ = hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_;
+        left_wheel_vel_ = hat_ly_ * max_vel_ + hat_lx_ * max_steer_differential_;
+        right_wheel_vel_ = hat_ly_ * max_vel_ - hat_lx_ * max_steer_differential_;
     }
 
     std_msgs::msg::Float32 left_msg;
