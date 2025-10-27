@@ -3,6 +3,7 @@
 #include "m2_sic_robot/base/subsystem_container.h"
 #include "m2_sic_robot/modes/manual_mode.h"
 #include "m2_sic_robot/subsystems/example_subsystem.h"
+#include "m2_sic_robot/subsystems/gripper_subsystem.h"
 
 #include "trolly/log/trolly_logger_macro.h"
 
@@ -15,6 +16,7 @@ sic_robot::sic_robot(
     auto& cs = fsm::command_scheduler::instance();
     // register subsystems here...
     g_subsystem_container.example_subsystem = cs.register_subsystem<example_subsystem>(node);
+    g_subsystem_container.gripper_subsystem = cs.register_subsystem<gripper_subsystem>(node);
 
     mode_store_type modes;
     // add modes here...

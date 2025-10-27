@@ -34,6 +34,7 @@ function(m2_sic_robot_ros2_add_library target_name)
             trolly::trolly-ros2
             m2_fsm_cpp::m2-fsm-cpp
             m2_fsm_cpp::m2-fsm-cpp-ros2
+            gpiodcxx
             ${ARG_WHOLE_DEPENDS}
         AMENT_DEPENDS
             std_msgs
@@ -55,6 +56,7 @@ function(m2_sic_robot_ros2_add_executable target_name)
             m2_fsm_cpp::m2-fsm-cpp
             m2_fsm_cpp::m2-fsm-cpp-ros2
             m2-sic-robot
+            gpiodcxx
             ${ARG_WHOLE_DEPENDS}
         AMENT_DEPENDS
             std_msgs

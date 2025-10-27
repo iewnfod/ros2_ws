@@ -8,6 +8,7 @@ namespace m2::sic_robot {
 struct subsystem_container_t {
     fsm::subsystem_instance_id_t example_subsystem{fsm::SUBSYSTEM_INSTANCE_ID_INVALID};
     // more susbsystem here...
+    fsm::subsystem_instance_id_t gripper_subsystem{fsm::SUBSYSTEM_INSTANCE_ID_INVALID};
 };
 
 inline subsystem_container_t g_subsystem_container;

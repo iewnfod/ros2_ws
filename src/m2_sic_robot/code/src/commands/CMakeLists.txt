@@ -1,1 +1,1 @@
-m2b_add_subdirectory(example)
+m2b_add_subdirectory(gripper)
