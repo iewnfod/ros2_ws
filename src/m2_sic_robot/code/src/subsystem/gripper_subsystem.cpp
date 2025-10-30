@@ -24,6 +24,11 @@ gripper_subsystem::gripper_subsystem(std::shared_ptr<rclcpp::Node> node) noexcep
     // subscribers here...
     gripper_sub_ = node->create_subscription<std_msgs::msg::Bool>(gripper_fb_topic, 1,
         [this](const std_msgs::msg::Bool& msg) { this->gripper_sub_cb(msg); });
+
+    gpiod::chip chip();
+    elevator_ = gpiod::find_line("GPIO25");
+    
+    
 }
 
 void gripper_subsystem::gripper_sub_cb(const std_msgs::msg::Bool& msg) noexcept

@@ -15,7 +15,7 @@ set_gripper_elevator_up_command::set_gripper_elevator_up_command(bool target) no
         FSM_GET_SUBSYSTEM(g_subsystem_container.gripper_subsystem, gripper_subsystem);
     assert(gripper_subsystem_ != nullptr);
     add_requirements({
-        g_subsystem_container.gripper_subsystem,
+        g_subsystem_container.gripper_subsystem
         // can add more subsystem requirements here...
     });
 }
