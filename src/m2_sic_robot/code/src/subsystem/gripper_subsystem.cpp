@@ -25,8 +25,15 @@ gripper_subsystem::gripper_subsystem(std::shared_ptr<rclcpp::Node> node) noexcep
     gripper_sub_ = node->create_subscription<std_msgs::msg::Bool>(gripper_fb_topic, 1,
         [this](const std_msgs::msg::Bool& msg) { this->gripper_sub_cb(msg); });
 
-    gpiod::chip chip();
-    elevator_ = gpiod::find_line("GPIO25");
+    auto chip = gpiod::chip("gpiochip4");
+    elevator_ = chip.get_line(24);
+    elevator_.request(
+        {"gripper",
+            gpiod::line_request::DIRECTION_OUTPUT,
+        0},
+        false
+    );
+    
     
     
 }
@@ -41,7 +48,7 @@ void gripper_subsystem::tick() noexcept {}
 void gripper_subsystem::set_elevator_up(bool up) noexcept
 {
 	try {
-		elevator_.set_value(up ? 1 : 0);
+		elevator_.set_value(up ? true : false);
 	} catch (const std::exception& e) {
 		TROLLY_ERROR("Failed to set elevator line value: {}", e.what());
 	}
