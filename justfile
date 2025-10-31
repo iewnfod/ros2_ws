@@ -20,7 +20,7 @@
 	ros2 launch "$(pwd)/install/m2_sic_robot/share/m2_sic_robot/launch/all_launch.py"
 
 from := "./src"
-to := "sic:/home/sic/ros2_ws/src"
+to := "sic:/home/sic/ros2_ws"
 
 @send2pi:
 	scp -r {{from}} {{to}}
