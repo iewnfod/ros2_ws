@@ -17,6 +17,10 @@ public:
 
 private:
     TROLLY_DISALLOW_COPY_AND_MOVE(manual_mode);
+
+    bool elevator_front_state_ = false;
+    bool elevator_back_state_ = false;
+    bool gripper_state_ = false;
 };
 
 }  // namespace m2::sic_robot

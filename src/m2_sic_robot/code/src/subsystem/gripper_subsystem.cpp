@@ -42,7 +42,7 @@ gripper_subsystem::gripper_subsystem(std::shared_ptr<rclcpp::Node> node) noexcep
         false
     );
 
-    gripper_ = chip.get_line(24);
+    gripper_ = chip.get_line(23);
     gripper_.request(
         {"gripper",
             gpiod::line_request::DIRECTION_OUTPUT,

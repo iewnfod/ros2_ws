@@ -30,28 +30,52 @@ void manual_mode::on_input(const ps_input_data_type& /* data */) noexcept
 
     // schedule a single command
     // Square = X, Cross = A, Circle = B, Triangle = Y
-    if (is_button_pressed<ps_button_t::SQUARE>()) {  // X
-        TROLLY_INFO("Button Square Pressed");
-        cs.schedule_command<set_elevator_front_command>(true);
-    } else if (is_button_pressed<ps_button_t::CIRCLE>()) {  // B
+    if (is_button_pressed<ps_button_t::CIRCLE>()) {  // X
         TROLLY_INFO("Button Circle Pressed");
-        cs.schedule_command<set_elevator_front_command>(false);
+        if (!elevator_front_state_)
+        {
+            elevator_front_state_ = true;
+            cs.schedule_command<set_elevator_front_command>(true);
+        }
+    } else if (is_button_pressed<ps_button_t::SQUARE>()) {  // B
+        TROLLY_INFO("Button Square Pressed");
+        if (elevator_front_state_)
+        {
+            elevator_front_state_ = false;
+            cs.schedule_command<set_elevator_front_command>(false);
+        }
     }
 
     if (is_dpad_pressed<ps_dpad_direction_t::UP>()) {
         TROLLY_INFO("DPad UP Pressed");
-        cs.schedule_command<set_elevator_back_command>(true);
+        if (!elevator_back_state_)
+        {
+            elevator_back_state_ = true;
+            cs.schedule_command<set_elevator_back_command>(true);
+        }
     } else if (is_dpad_pressed<ps_dpad_direction_t::DOWN>()) {
         TROLLY_INFO("DPad DOWN Pressed");
-        cs.schedule_command<set_elevator_back_command>(false);
+        if (elevator_back_state_)
+        {
+            elevator_back_state_ = false;
+            cs.schedule_command<set_elevator_back_command>(false);
+        }
     }
 
     if (is_button_pressed<ps_button_t::L1>()) {
         TROLLY_INFO("Button L1 Pressed");
-        cs.schedule_command<set_gripper_command>(false);
+        if (!gripper_state_)
+        {
+            gripper_state_ = true;
+            cs.schedule_command<set_gripper_command>(true);
+        }
     } else if (is_button_pressed<ps_button_t::R1>()) {
         TROLLY_INFO("Button R1 Pressed");
-        cs.schedule_command<set_gripper_command>(true);
+        if (gripper_state_)
+        {
+            gripper_state_ = false;
+            cs.schedule_command<set_gripper_command>(false);
+        }
     }
 
     // cancel all existing scheduled commands
