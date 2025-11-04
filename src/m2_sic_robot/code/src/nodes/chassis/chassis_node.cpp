@@ -18,7 +18,7 @@ chassis_node::chassis_node()
     : rclcpp::Node("chassis_node")
 {
     max_vel_ = 40000.0;
-    max_steer_differential_ = 15000.0;
+    max_steer_differential_ = 25000.0;
 
     hat_ly_ = 0.0;
     hat_lx_ = 0.0;

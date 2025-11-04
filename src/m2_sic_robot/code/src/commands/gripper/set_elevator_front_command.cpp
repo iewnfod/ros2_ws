@@ -1,4 +1,4 @@
-#include "m2_sic_robot/commands/gripper/set_gripper_elevator_up_command.h"
+#include "m2_sic_robot/commands/gripper/set_elevator_front_command.h"
 #include "m2_sic_robot/base/sic_robot_define.h"
 #include "m2_sic_robot/base/subsystem_container.h"
 #include "m2_sic_robot/subsystems/gripper_subsystem.h"
@@ -7,8 +7,8 @@
 
 namespace m2::sic_robot {
 
-set_gripper_elevator_up_command::set_gripper_elevator_up_command(bool target) noexcept
-    : command("set_gripper_elevator_up_command")
+set_elevator_front_command::set_elevator_front_command(bool target) noexcept
+    : command("set_elevator_front_command")
 	, target_(target)
 {
     gripper_subsystem_ =
@@ -20,16 +20,17 @@ set_gripper_elevator_up_command::set_gripper_elevator_up_command(bool target) no
     });
 }
 
-void set_gripper_elevator_up_command::initialize() noexcept
+void set_elevator_front_command::initialize() noexcept
 {
-	gripper_subsystem_->set_elevator_up(target_);
+	gripper_subsystem_->set_elevator_front(target_);
+    TROLLY_INFO("set_elevator_front_command set to %d.", target_);
     // call gripper_subsystem_'s methods to perform desired actions...
 }
 
-void set_gripper_elevator_up_command::execute() noexcept {}
+void set_elevator_front_command::execute() noexcept {}
 
-void set_gripper_elevator_up_command::end(bool /* interrupted */) noexcept { TROLLY_INFO("set_gripper_elevator_up_command end."); }
+void set_elevator_front_command::end(bool /* interrupted */) noexcept { TROLLY_INFO("set_elevator_front_command end."); }
 
-bool set_gripper_elevator_up_command::is_finished() noexcept { return true; }
+bool set_elevator_front_command::is_finished() noexcept { return true; }
 
 }  // namespace m2::sic_robot

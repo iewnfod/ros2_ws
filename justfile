@@ -16,8 +16,8 @@
 	echo "Cleaned build/, install/, and log/ directories."
 
 @launch:
-	bash install/setup.bash && \
-	ros2 launch "$(pwd)/install/m2_sic_robot/share/m2_sic_robot/launch/all_launch.py"
+	#!/bin/bash
+	source install/setup.bash && ros2 launch m2_sic_robot all_launch.py
 
 from := "./src"
 to := "sic:/home/sic/ros2_ws"

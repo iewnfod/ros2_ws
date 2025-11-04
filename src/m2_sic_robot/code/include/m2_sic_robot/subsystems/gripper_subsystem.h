@@ -17,7 +17,9 @@ public:
     ~gripper_subsystem() noexcept = default;
 
     void tick() noexcept override;
-	void set_elevator_up(bool up) noexcept;
+	void set_elevator_front(bool up) noexcept;
+	void set_elevator_back(bool up) noexcept;
+	void set_gripper(bool up) noexcept;
 
 private:
     void gripper_sub_cb(const std_msgs::msg::Bool& msg) noexcept;
@@ -27,8 +29,11 @@ private:
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr gripper_pub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr gripper_sub_;
 
-	gpiod::line right_;
-	gpiod::line elevator_;
+	// gpiod::line right_;
+	// gpiod::line elevator_;
+    gpiod::line elevator_front_;
+    gpiod::line elevator_back_;
+    gpiod::line gripper_;
 
     TROLLY_DISALLOW_COPY_AND_MOVE(gripper_subsystem);
 };

@@ -48,6 +48,6 @@ def generate_launch_description():
             joy_node,
             hardware_nodes,
             fsm_node,
-            chassis_node
+            # chassis_node
         ]
     )

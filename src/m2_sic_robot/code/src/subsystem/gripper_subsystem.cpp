@@ -24,18 +24,31 @@ gripper_subsystem::gripper_subsystem(std::shared_ptr<rclcpp::Node> node) noexcep
     // subscribers here...
     gripper_sub_ = node->create_subscription<std_msgs::msg::Bool>(gripper_fb_topic, 1,
         [this](const std_msgs::msg::Bool& msg) { this->gripper_sub_cb(msg); });
-
     auto chip = gpiod::chip("gpiochip4");
-    elevator_ = chip.get_line(24);
-    elevator_.request(
+
+    elevator_front_ = chip.get_line(18);
+    elevator_front_.request(
         {"gripper",
             gpiod::line_request::DIRECTION_OUTPUT,
         0},
         false
     );
-    
-    
-    
+
+    elevator_back_ = chip.get_line(25);
+    elevator_back_.request(
+        {"gripper",
+            gpiod::line_request::DIRECTION_OUTPUT,
+        0},
+        false
+    );
+
+    gripper_ = chip.get_line(24);
+    gripper_.request(
+        {"gripper",
+            gpiod::line_request::DIRECTION_OUTPUT,
+        0},
+        false
+    );
 }
 
 void gripper_subsystem::gripper_sub_cb(const std_msgs::msg::Bool& msg) noexcept
@@ -45,12 +58,33 @@ void gripper_subsystem::gripper_sub_cb(const std_msgs::msg::Bool& msg) noexcept
 
 void gripper_subsystem::tick() noexcept {}
 
-void gripper_subsystem::set_elevator_up(bool up) noexcept
+void gripper_subsystem::set_elevator_front(bool up) noexcept
 {
 	try {
-		elevator_.set_value(up ? true : false);
+		elevator_front_.set_value(up ? 1 : 0);
+        TROLLY_INFO("Set elevator front value: %d", up);
 	} catch (const std::exception& e) {
-		TROLLY_ERROR("Failed to set elevator line value: {}", e.what());
+		TROLLY_ERROR("Failed to set elevator line value: %s", e.what());
+	}
+}
+
+void gripper_subsystem::set_elevator_back(bool up) noexcept
+{
+	try {
+		elevator_back_.set_value(up ? 1 : 0);
+        TROLLY_INFO("Set elevator back value: %d", up);
+	} catch (const std::exception& e) {
+		TROLLY_ERROR("Failed to set elevator line value: %s", e.what());
+	}
+}
+
+void gripper_subsystem::set_gripper(bool up) noexcept
+{
+	try {
+		gripper_.set_value(up ? 1 : 0);
+        TROLLY_INFO("Set gripper value: %d", up);
+	} catch (const std::exception& e) {
+		TROLLY_ERROR("Failed to set elevator line value: %s", e.what());
 	}
 }
 
