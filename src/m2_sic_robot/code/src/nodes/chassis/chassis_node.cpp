@@ -18,7 +18,7 @@ chassis_node::chassis_node()
     : rclcpp::Node("chassis_node")
 {
     max_vel_ = 40000.0;
-    max_steer_differential_ = 25000.0;
+    max_steer_differential_ = 20000.0;
 
     hat_ly_ = 0.0;
     hat_lx_ = 0.0;
@@ -96,6 +96,12 @@ void chassis_node::on_controller_data_cb(const m2_interfaces::msg::JoyData& data
         hat_ly_ = data.hat_ly;
     } else {
         hat_ly_ = 0.0;
+    }
+
+    if (data.l2)
+    {
+        hat_lx_ *= 0.3;
+        hat_ly_ *= 0.3;
     }
 }
 
