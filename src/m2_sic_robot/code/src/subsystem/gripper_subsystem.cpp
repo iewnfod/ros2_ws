@@ -28,27 +28,33 @@ gripper_subsystem::gripper_subsystem(std::shared_ptr<rclcpp::Node> node) noexcep
 
     elevator_front_ = chip.get_line(18);
     elevator_front_.request(
-        {"gripper",
+        {"elevator_front_",
             gpiod::line_request::DIRECTION_OUTPUT,
         0},
         false
     );
-
-    elevator_back_ = chip.get_line(25);
+    
+    elevator_back_ = chip.get_line(23);
     elevator_back_.request(
-        {"gripper",
+        {"elevator_back_",
             gpiod::line_request::DIRECTION_OUTPUT,
         0},
         false
     );
 
-    gripper_ = chip.get_line(23);
+    gripper_ = chip.get_line(25);
     gripper_.request(
-        {"gripper",
+        {"gripper_",
             gpiod::line_request::DIRECTION_OUTPUT,
         0},
         false
     );
+}
+
+void gripper_subsystem::release_lines() noexcept{
+    elevator_front_.release();
+    elevator_back_.release();
+    gripper_.release();
 }
 
 void gripper_subsystem::gripper_sub_cb(const std_msgs::msg::Bool& msg) noexcept

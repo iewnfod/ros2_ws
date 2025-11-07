@@ -17,9 +17,10 @@ public:
     ~gripper_subsystem() noexcept = default;
 
     void tick() noexcept override;
+    void release_lines() noexcept;
 	void set_elevator_front(bool up) noexcept;
 	void set_elevator_back(bool up) noexcept;
-	void set_gripper(bool up) noexcept;
+	void set_gripper(bool up) noexcept;    
 
 private:
     void gripper_sub_cb(const std_msgs::msg::Bool& msg) noexcept;

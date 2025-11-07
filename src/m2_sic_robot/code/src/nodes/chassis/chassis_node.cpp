@@ -109,6 +109,7 @@ void chassis_node::on_controller_data_cb(const m2_interfaces::msg::JoyData& data
 
 void shutdown(int)
 {
+    TROLLY_INFO("The Chassis Node Shutdown");
     rclcpp::shutdown();
     exit(0);
 }
