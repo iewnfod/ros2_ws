@@ -30,6 +30,7 @@ chassis_node::chassis_node()
     right_wheel_vel_ = 0.0;
 
     stop_flag = false;
+    reverse_head = false;
 
     timer_ = this->create_wall_timer(
         10ms, [this](){this->tick();}
@@ -70,6 +71,12 @@ void chassis_node::tick()
     std_msgs::msg::Float32 left_msg;
     std_msgs::msg::Float32 right_msg;
 
+    if (reverse_head)
+    {
+        left_wheel_vel_ = -left_wheel_vel_;
+        right_wheel_vel_ = -right_wheel_vel_;
+    }
+
     left_msg.data = left_wheel_vel_;
     right_msg.data = right_wheel_vel_;
 
@@ -102,6 +109,13 @@ void chassis_node::on_controller_data_cb(const m2_interfaces::msg::JoyData& data
     {
         hat_lx_ *= 0.3;
         hat_ly_ *= 0.3;
+    }
+
+    if (data.square) {
+        reverse_head = false;
+    }
+    if (data.circle) {
+        reverse_head = true;
     }
 }
 

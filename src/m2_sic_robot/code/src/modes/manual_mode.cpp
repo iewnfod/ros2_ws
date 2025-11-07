@@ -30,15 +30,15 @@ void manual_mode::on_input(const ps_input_data_type& /* data */) noexcept
 
     // schedule a single command
     // Square = X, Cross = A, Circle = B, Triangle = Y
-    if (is_button_pressed<ps_button_t::CIRCLE>()) {  // X
-        TROLLY_INFO("Button Circle Pressed");
+    if (is_button_pressed<ps_button_t::TRIANGLE>()) {  // X
+        TROLLY_INFO("Button Triangle Pressed");
         if (!elevator_front_state_)
         {
             elevator_front_state_ = true;
             cs.schedule_command<set_elevator_front_command>(true);
         }
-    } else if (is_button_pressed<ps_button_t::SQUARE>()) {  // B
-        TROLLY_INFO("Button Square Pressed");
+    } else if (is_button_pressed<ps_button_t::CROSS>()) {  // B
+        TROLLY_INFO("Button Cross Pressed");
         if (elevator_front_state_)
         {
             elevator_front_state_ = false;
